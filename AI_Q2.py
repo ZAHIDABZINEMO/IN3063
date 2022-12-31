@@ -51,3 +51,30 @@ class Softmax:
         output = self.forward(x)
         # Calculate the gradient
         return output * (grad_output - np.sum(grad_output * output, axis=1, keepdims=True))
+class Dropout:
+    def __init__(self, p=0.5):
+        """
+        Initializes the dropout layer with a dropout probability p.
+        """
+        self.p = p
+        self.mask = None
+
+    def forward(self, x, train=True):
+        """
+        Applies dropout to the input tensor x during training.
+        """
+        if train:
+            # Generate a mask with probability p of keeping each element
+            self.mask = np.random.rand(*x.shape) > self.p
+            # Apply the mask to the input tensor
+            return x * self.mask
+        else:
+            # During evaluation, simply return the input tensor
+            return x
+
+    def backward(self, grad_output):
+        """
+        Propagates the gradient of the loss through the dropout layer.
+        """
+        # Apply the mask to the gradient
+        return grad_output * self.mask
